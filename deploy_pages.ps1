@@ -1,5 +1,7 @@
 # Демо-версияро (бе сервер) ба GitHub Pages мефиристад: https://bamazaev.github.io/tillo.tj/
-$ErrorActionPreference = 'Stop'
+# Flutter ва git ба stderr менависанд; дар PowerShell 5.1 ин хато ҳисоб мешавад — бинобар ин $LASTEXITCODE-ро месанҷем.
+$ErrorActionPreference = 'Continue'
+function Check($what) { if ($LASTEXITCODE -ne 0) { Write-Host "Xato: $what" -ForegroundColor Red; exit 1 } }
 $root = $PSScriptRoot
 $out = Join-Path $env:TEMP 'tillo_pages'
 # Рақами нав барои ҳар нашр — браузер файлҳои кӯҳнаро аз кеш намегирад.
@@ -12,6 +14,7 @@ Pop-Location
 
 Push-Location "$root\frontend"
 flutter build web --release --dart-define=DEMO=true --dart-define=BUILD_ID=$build --base-href /tillo.tj/
+Check 'flutter build'
 Pop-Location
 
 if (Test-Path $out) { Remove-Item -Recurse -Force $out }
@@ -31,8 +34,12 @@ New-Item -ItemType File "$out\.nojekyll" | Out-Null
 $rev = git -C $root rev-parse --short HEAD
 Push-Location $out
 git init -q -b gh-pages
+git config user.name (git -C $root config user.name)
+git config user.email (git -C $root config user.email)
 git add -A
 git commit -q -m "Deploy demo $rev ($build)"
 git push -f https://github.com/Bamazaev/tillo.tj.git gh-pages
+if ($LASTEXITCODE -ne 0) { Start-Sleep 5; git push -f https://github.com/Bamazaev/tillo.tj.git gh-pages }  # як бори дигар
+Check 'git push'
 Pop-Location
 Write-Host "Tayyor: https://bamazaev.github.io/tillo.tj/  (build $build)" -ForegroundColor Yellow
