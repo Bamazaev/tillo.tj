@@ -1,9 +1,12 @@
 import 'dart:convert';
 import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../core/config.dart';
 
 /// «Сервери» дохилӣ барои версияи намоишӣ (GitHub Pages, бе Python).
 ///
@@ -29,7 +32,7 @@ class DemoClient extends http.BaseClient {
   Future<void> _init() => _initFuture ??= _load();
 
   Future<void> _load() async {
-    final data = jsonDecode(await rootBundle.loadString('assets/demo/data.json')) as Map<String, dynamic>;
+    final data = jsonDecode(await _loadData()) as Map<String, dynamic>;
     _meta = data['meta'] as Map<String, dynamic>;
     _quote = data['quote'] as Map<String, dynamic>;
     _users = (data['users'] as List).cast<Map<String, dynamic>>();
@@ -40,6 +43,19 @@ class DemoClient extends http.BaseClient {
     }
     _restore();
     _quoteReady = _refreshQuote();
+  }
+
+  /// Дар веб бо `?v=BUILD_ID` (бе кеши кӯҳна), дар тестҳо — аз rootBundle.
+  Future<String> _loadData() async {
+    if (kIsWeb && AppConfig.buildId.isNotEmpty) {
+      try {
+        final res = await http.get(Uri.parse('assets/assets/demo/data.json?v=${AppConfig.buildId}')); // нисбат ба <base href>
+        if (res.statusCode == 200) return utf8.decode(res.bodyBytes);
+      } catch (_) {
+        // ба rootBundle мегузарем
+      }
+    }
+    return rootBundle.loadString('assets/demo/data.json');
   }
 
   /// Санаҳои намунаро ба «ҳозир» наздик мекунем, то «19 рӯз пеш» кӯҳна нашавад.

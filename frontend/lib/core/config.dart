@@ -10,6 +10,11 @@ class AppConfig {
   /// Версияи намоишӣ бе сервер (GitHub Pages): `--dart-define=DEMO=true`.
   static const demo = bool.fromEnvironment('DEMO');
 
+  /// Рақами версия (deploy). Ба URL-ҳо илова мешавад, то браузер файли кӯҳнаро аз кеш нагирад.
+  static const buildId = String.fromEnvironment('BUILD_ID');
+
+  static String _v(String url) => buildId.isEmpty ? url : '$url?v=$buildId';
+
   static String get apiBase {
     if (_fromEnv.isNotEmpty) return _fromEnv;
     if (kIsWeb && kReleaseMode) return Uri.base.origin;
@@ -22,7 +27,7 @@ class AppConfig {
   static String imageUrl(String path) {
     if (path.startsWith('http') || path.startsWith('data:')) return path;
     // Демо: роҳи нисбӣ (demo/5.jpg) — нисбат ба base href-и сайт.
-    if (!path.startsWith('/')) return path;
+    if (!path.startsWith('/')) return _v(path);
     return '$apiBase$path';
   }
 }
