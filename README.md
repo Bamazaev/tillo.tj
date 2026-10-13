@@ -23,7 +23,8 @@
 
 ## Запуск
 ```powershell
-.\run.ps1      # собирает сайт и запускает его на http://localhost:8000
+.\run.ps1           # собирает сайт и запускает его на http://localhost:8000
+.\deploy_pages.ps1  # обновляет демо на GitHub Pages
 ```
 
 Вручную:
