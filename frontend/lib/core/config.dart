@@ -19,6 +19,10 @@ class AppConfig {
     return 'http://localhost:8000';
   }
 
-  static String imageUrl(String path) =>
-      path.startsWith('http') || path.startsWith('data:') ? path : '$apiBase$path';
+  static String imageUrl(String path) {
+    if (path.startsWith('http') || path.startsWith('data:')) return path;
+    // Демо: роҳи нисбӣ (demo/5.jpg) — нисбат ба base href-и сайт.
+    if (!path.startsWith('/')) return path;
+    return '$apiBase$path';
+  }
 }

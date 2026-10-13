@@ -9,6 +9,7 @@ import '../../data/api.dart';
 import '../../data/models.dart';
 import '../shell.dart';
 import '../widgets/gold.dart';
+import '../widgets/gold_price.dart';
 import '../widgets/listing_card.dart';
 
 class CatalogPage extends StatelessWidget {
@@ -196,7 +197,13 @@ class _CatalogViewState extends State<_CatalogView> {
               child: state.loadingMore
                   ? const CircularProgressIndicator()
                   : (state.status == CatalogStatus.ready && !state.hasMore && state.items.isNotEmpty)
-                      ? Text('◆  ${t('catalog.end')}  ◆', style: TextStyle(color: Gold.muted, fontSize: 12))
+                      ? Row(mainAxisSize: MainAxisSize.min, children: [
+                          const Diamond(),
+                          const SizedBox(width: 10),
+                          Text(t('catalog.end'), style: TextStyle(color: Gold.muted, fontSize: 12)),
+                          const SizedBox(width: 10),
+                          const Diamond(),
+                        ])
                       : const SizedBox.shrink(),
             ),
           ),

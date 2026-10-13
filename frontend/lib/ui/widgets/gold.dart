@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -17,10 +18,10 @@ class GoldText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => ShaderMask(
-        blendMode: BlendMode.srcIn,
-        shaderCallback: Gold.textGradient.createShader,
-        child: Text(text, style: style, textAlign: textAlign, maxLines: maxLines, overflow: TextOverflow.ellipsis),
-      );
+    blendMode: BlendMode.srcIn,
+    shaderCallback: Gold.textGradient.createShader,
+    child: Text(text, style: style, textAlign: textAlign, maxLines: maxLines, overflow: TextOverflow.ellipsis),
+  );
 }
 
 /// Иконка бо градиенти тиллоӣ.
@@ -31,10 +32,10 @@ class GoldIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => ShaderMask(
-        blendMode: BlendMode.srcIn,
-        shaderCallback: Gold.textGradient.createShader,
-        child: Icon(icon, size: size),
-      );
+    blendMode: BlendMode.srcIn,
+    shaderCallback: Gold.textGradient.createShader,
+    child: Icon(icon, size: size),
+  );
 }
 
 /// Матни тиллоӣ бо дурахши ҳаракаткунанда (сарлавҳаи асосӣ).
@@ -49,10 +50,20 @@ class ShimmerGoldText extends StatefulWidget {
 }
 
 class _ShimmerGoldTextState extends State<ShimmerGoldText> with SingleTickerProviderStateMixin {
-  late final _c = AnimationController(vsync: this, duration: const Duration(seconds: 4))..repeat();
+  late final _c = AnimationController(vsync: this, duration: const Duration(milliseconds: 1800));
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    // Дурахш як бор, баъд ҳар 7 сония — дар байн ҳеҷ кадр кашида намешавад.
+    _c.forward();
+    _timer = Timer.periodic(const Duration(seconds: 7), (_) => _c.forward(from: 0));
+  }
 
   @override
   void dispose() {
+    _timer?.cancel();
     _c.dispose();
     super.dispose();
   }
@@ -62,22 +73,24 @@ class _ShimmerGoldTextState extends State<ShimmerGoldText> with SingleTickerProv
     final colors = Gold.dark
         ? const [Gold.deep, Gold.gold, Color(0xFFFFF6D8), Gold.gold, Gold.deep]
         : const [Color(0xFF6B4E0C), Color(0xFFA67C1B), Color(0xFFE2C26A), Color(0xFFA67C1B), Color(0xFF6B4E0C)];
-    return AnimatedBuilder(
-      animation: _c,
-      builder: (context, child) {
-        final x = _c.value * 3 - 1;
-        return ShaderMask(
-          blendMode: BlendMode.srcIn,
-          shaderCallback: (r) => LinearGradient(
-            begin: Alignment(x - 1, -.3),
-            end: Alignment(x + 1, .3),
-            colors: colors,
-            stops: const [0, .35, .5, .65, 1],
-          ).createShader(r),
-          child: child,
-        );
-      },
-      child: Text(widget.text, style: widget.style, textAlign: widget.textAlign),
+    return RepaintBoundary(
+      child: AnimatedBuilder(
+        animation: _c,
+        builder: (context, child) {
+          final x = _c.value * 3 - 1;
+          return ShaderMask(
+            blendMode: BlendMode.srcIn,
+            shaderCallback: (r) => LinearGradient(
+              begin: Alignment(x - 1, -.3),
+              end: Alignment(x + 1, .3),
+              colors: colors,
+              stops: const [0, .35, .5, .65, 1],
+            ).createShader(r),
+            child: child,
+          );
+        },
+        child: Text(widget.text, style: widget.style, textAlign: widget.textAlign),
+      ),
     );
   }
 }
@@ -202,18 +215,18 @@ class RoundIconButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => SizedBox.square(
-        dimension: size,
-        child: IconButton(
-          tooltip: tooltip,
-          onPressed: onPressed,
-          padding: EdgeInsets.zero,
-          style: IconButton.styleFrom(
-            backgroundColor: Gold.surface,
-            side: BorderSide(color: Gold.line),
-          ),
-          icon: child ?? Icon(icon, size: size * .45, color: color ?? Gold.text),
-        ),
-      );
+    dimension: size,
+    child: IconButton(
+      tooltip: tooltip,
+      onPressed: onPressed,
+      padding: EdgeInsets.zero,
+      style: IconButton.styleFrom(
+        backgroundColor: Gold.surface,
+        side: BorderSide(color: Gold.line),
+      ),
+      icon: child ?? Icon(icon, size: size * .45, color: color ?? Gold.text),
+    ),
+  );
 }
 
 class SectionTitle extends StatelessWidget {
@@ -234,14 +247,19 @@ class SectionTitle extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(children: [
-                  Container(width: compact ? 18 : 26, height: 1.5, color: Gold.accent),
-                  const SizedBox(width: 10),
-                  Flexible(child: Text(title, style: Gold.display(compact ? 26 : 32))),
-                ]),
+                Row(
+                  children: [
+                    Container(width: compact ? 18 : 26, height: 1.5, color: Gold.accent),
+                    const SizedBox(width: 10),
+                    Flexible(child: Text(title, style: Gold.display(compact ? 26 : 32))),
+                  ],
+                ),
                 if (subtitle != null) ...[
                   const SizedBox(height: 4),
-                  Text(subtitle!, style: TextStyle(color: Gold.muted, fontSize: compact ? 13 : 14)),
+                  Text(
+                    subtitle!,
+                    style: TextStyle(color: Gold.muted, fontSize: compact ? 13 : 14),
+                  ),
                 ],
               ],
             ),
@@ -254,32 +272,32 @@ class SectionTitle extends StatelessWidget {
 }
 
 IconData categoryIcon(String slug) => switch (slug) {
-      'rings' => Icons.radio_button_unchecked,
-      'earrings' => Icons.water_drop_outlined,
-      'chains' => Icons.link,
-      'pendants' => Icons.favorite_border,
-      'bracelets' => Icons.all_inclusive,
-      'sets' => Icons.auto_awesome_outlined,
-      'wedding' => Icons.join_inner,
-      'watches' => Icons.watch_outlined,
-      'bullion' => Icons.view_agenda_outlined,
-      'gems' => Icons.diamond_outlined,
-      'silver' => Icons.brightness_5_outlined,
-      'antique' => Icons.museum_outlined,
-      _ => Icons.diamond_outlined,
-    };
+  'rings' => Icons.radio_button_unchecked,
+  'earrings' => Icons.water_drop_outlined,
+  'chains' => Icons.link,
+  'pendants' => Icons.favorite_border,
+  'bracelets' => Icons.all_inclusive,
+  'sets' => Icons.auto_awesome_outlined,
+  'wedding' => Icons.join_inner,
+  'watches' => Icons.watch_outlined,
+  'bullion' => Icons.view_agenda_outlined,
+  'gems' => Icons.diamond_outlined,
+  'silver' => Icons.brightness_5_outlined,
+  'antique' => Icons.museum_outlined,
+  _ => Icons.diamond_outlined,
+};
 
 Color stoneColor(String stone) => switch (stone) {
-      'diamond' => const Color(0xFF9EC9F0),
-      'emerald' => const Color(0xFF2FBF71),
-      'ruby' => const Color(0xFFE0245E),
-      'sapphire' => const Color(0xFF2D6BE4),
-      'spinel' => const Color(0xFFFF4F7B),
-      'pearl' => const Color(0xFFD9CBB4),
-      'topaz' => const Color(0xFF6CC7F0),
-      'zirconia' => const Color(0xFFB9C3F5),
-      _ => Gold.gold,
-    };
+  'diamond' => const Color(0xFF9EC9F0),
+  'emerald' => const Color(0xFF2FBF71),
+  'ruby' => const Color(0xFFE0245E),
+  'sapphire' => const Color(0xFF2D6BE4),
+  'spinel' => const Color(0xFFFF4F7B),
+  'pearl' => const Color(0xFFD9CBB4),
+  'topaz' => const Color(0xFF6CC7F0),
+  'zirconia' => const Color(0xFFB9C3F5),
+  _ => Gold.gold,
+};
 
 /// Расм барои эълонҳои бе сурат: дурахш + иконкаи категория дар ранги металл.
 class JewelArt extends StatelessWidget {
@@ -297,17 +315,17 @@ class JewelArt extends StatelessWidget {
     final angle = (seed % 7) * math.pi / 7;
     final metalGradient = silvery
         ? (Gold.dark
-            ? const LinearGradient(colors: [Color(0xFF8E9399), Color(0xFFF4F6F8), Color(0xFFB9BEC4)])
-            : const LinearGradient(colors: [Color(0xFF6D737B), Color(0xFFC9CED4), Color(0xFF878D95)]))
+              ? const LinearGradient(colors: [Color(0xFF8E9399), Color(0xFFF4F6F8), Color(0xFFB9BEC4)])
+              : const LinearGradient(colors: [Color(0xFF6D737B), Color(0xFFC9CED4), Color(0xFF878D95)]))
         : rose
-            ? const LinearGradient(colors: [Color(0xFFA9604C), Color(0xFFF1BFA9), Color(0xFFB97A63)])
-            : Gold.dark
-                ? Gold.gradient
-                : const LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [Color(0xFF9A7316), Color(0xFFE6C463), Color(0xFFB8892A)],
-                  );
+        ? const LinearGradient(colors: [Color(0xFFA9604C), Color(0xFFF1BFA9), Color(0xFFB97A63)])
+        : Gold.dark
+        ? Gold.gradient
+        : const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color(0xFF9A7316), Color(0xFFE6C463), Color(0xFFB8892A)],
+          );
     final bgColors = Gold.dark
         ? [accent.withValues(alpha: .22), Gold.surface2, Gold.bg]
         : [accent.withValues(alpha: .13), const Color(0xFFF9F4EA), const Color(0xFFEFE6D4)];
@@ -387,18 +405,23 @@ class Pill extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         border: gold ? null : Border.all(color: Gold.line),
       ),
-      child: Row(mainAxisSize: MainAxisSize.min, children: [
-        if (icon != null) ...[
-          Icon(icon, size: 12, color: gold ? Gold.onGold : Gold.accent),
-          const SizedBox(width: 4),
-        ],
-        Flexible(
-          child: Text(label,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (icon != null) ...[
+            Icon(icon, size: 12, color: gold ? Gold.onGold : Gold.accent),
+            const SizedBox(width: 4),
+          ],
+          Flexible(
+            child: Text(
+              label,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: fg)),
-        ),
-      ]),
+              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: fg),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -412,25 +435,32 @@ class EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Center(
-        child: Padding(
-          padding: const EdgeInsets.all(32),
-          child: Column(mainAxisSize: MainAxisSize.min, children: [
-            Container(
-              width: 88,
-              height: 88,
-              decoration: BoxDecoration(color: Gold.surface2, shape: BoxShape.circle),
-              child: Center(child: GoldIcon(icon, size: 40)),
+    child: Padding(
+      padding: const EdgeInsets.all(32),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 88,
+            height: 88,
+            decoration: BoxDecoration(color: Gold.surface2, shape: BoxShape.circle),
+            child: Center(child: GoldIcon(icon, size: 40)),
+          ),
+          const SizedBox(height: 18),
+          Text(title, style: Gold.display(26), textAlign: TextAlign.center),
+          if (text != null) ...[
+            const SizedBox(height: 8),
+            Text(
+              text!,
+              style: TextStyle(color: Gold.muted),
+              textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 18),
-            Text(title, style: Gold.display(26), textAlign: TextAlign.center),
-            if (text != null) ...[
-              const SizedBox(height: 8),
-              Text(text!, style: TextStyle(color: Gold.muted), textAlign: TextAlign.center),
-            ],
-            if (action != null) ...[const SizedBox(height: 20), action!],
-          ]),
-        ),
-      );
+          ],
+          if (action != null) ...[const SizedBox(height: 20), action!],
+        ],
+      ),
+    ),
+  );
 }
 
 /// Маҳдудкунандаи паҳнӣ барои экранҳои калон.
@@ -442,20 +472,20 @@ class Constrained extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Center(
-        child: ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: maxWidth),
-          child: Padding(
-            padding: padding ?? EdgeInsets.symmetric(horizontal: isCompact(context) ? 16 : 28),
-            child: child,
-          ),
-        ),
-      );
+    child: ConstrainedBox(
+      constraints: BoxConstraints(maxWidth: maxWidth),
+      child: Padding(
+        padding: padding ?? EdgeInsets.symmetric(horizontal: isCompact(context) ? 16 : 28),
+        child: child,
+      ),
+    ),
+  );
 }
 
 /// Корт бо сояи нарм (равшан) ё хати борик (торик).
 BoxDecoration cardDecoration({double radius = 18, Color? border}) => BoxDecoration(
-      color: Gold.surface,
-      borderRadius: BorderRadius.circular(radius),
-      border: Border.all(color: border ?? Gold.line),
-      boxShadow: Gold.softShadow,
-    );
+  color: Gold.surface,
+  borderRadius: BorderRadius.circular(radius),
+  border: Border.all(color: border ?? Gold.line),
+  boxShadow: Gold.softShadow,
+);

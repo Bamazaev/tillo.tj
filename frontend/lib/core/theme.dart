@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 /// Палитра. Рангҳои замина/матн аз [dark] вобастаанд (ранги равшан — пешфарз);
 /// MaterialApp ҳангоми иваз аз нав сохта мешавад, бинобар ин getter-ҳо кофӣ.
@@ -48,7 +47,8 @@ class Gold {
         ];
 
   static TextStyle display(double size, {FontWeight weight = FontWeight.w600, Color? color}) =>
-      GoogleFonts.cormorantGaramond(
+      TextStyle(
+        fontFamily: 'Cormorant',
         fontSize: size,
         fontWeight: weight,
         color: color ?? text,
@@ -61,7 +61,7 @@ ThemeData buildTheme() {
   final base = ThemeData(
     brightness: dark ? Brightness.dark : Brightness.light,
     useMaterial3: true,
-    fontFamily: GoogleFonts.inter().fontFamily,
+    fontFamily: 'Inter',
     scaffoldBackgroundColor: Gold.bg,
     colorScheme: (dark ? const ColorScheme.dark() : const ColorScheme.light()).copyWith(
       primary: Gold.accent,

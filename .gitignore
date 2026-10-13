@@ -5,3 +5,4 @@ __pycache__/
 frontend/.dart_tool/
 frontend/build/
 frontend/.flutter-plugins*
+frontend/web/demo/

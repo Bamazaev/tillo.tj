@@ -37,6 +37,13 @@ def test_meta_and_seed(client):
     assert "Душанбе" in meta["cities"]
 
 
+def test_seed_photos_are_served(client):
+    item = client.get("/api/listings/1").json()
+    assert item["images"] == ["/uploads/seed_1.jpg"]
+    r = client.get(item["images"][0])
+    assert r.status_code == 200 and r.headers["content-type"] == "image/jpeg"
+
+
 def test_gold_price_math(client):
     q = client.get("/api/gold-price").json()
     g = q["gold_per_gram"]

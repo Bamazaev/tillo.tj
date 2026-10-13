@@ -46,11 +46,9 @@ class GoldTicker extends StatelessWidget {
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: items.length,
-              separatorBuilder: (_, _) => const Center(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 12),
-                  child: Text('◆', style: TextStyle(color: Gold.deep, fontSize: 7)),
-                ),
+              separatorBuilder: (_, _) => const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 12),
+                child: Center(child: Diamond()),
               ),
               itemBuilder: (_, i) => Center(
                 child: Text.rich(TextSpan(children: [
@@ -69,42 +67,44 @@ class GoldTicker extends StatelessWidget {
   }
 }
 
-class _LiveDot extends StatefulWidget {
+class _LiveDot extends StatelessWidget {
   const _LiveDot({required this.live});
   final bool live;
+
   @override
-  State<_LiveDot> createState() => _LiveDotState();
+  Widget build(BuildContext context) {
+    final color = live ? const Color(0xFF3DDC84) : const Color(0xFFA39A86);
+    return Tooltip(
+      message: live ? t('ticker.live_tip') : t('ticker.offline_tip'),
+      child: Row(mainAxisSize: MainAxisSize.min, children: [
+        Container(
+          width: 7,
+          height: 7,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: color,
+            boxShadow: live ? [BoxShadow(color: color.withValues(alpha: .6), blurRadius: 6)] : null,
+          ),
+        ),
+        const SizedBox(width: 6),
+        Text(live ? t('ticker.live') : t('ticker.offline'),
+            style: const TextStyle(
+                fontSize: 10, letterSpacing: 1.2, color: Color(0xFFA39A86), fontWeight: FontWeight.w700)),
+      ]),
+    );
+  }
 }
 
-class _LiveDotState extends State<_LiveDot> with SingleTickerProviderStateMixin {
-  late final _c = AnimationController(vsync: this, duration: const Duration(milliseconds: 1400))..repeat(reverse: true);
+/// Ҷудокунандаи хурди алмосшакл.
+class Diamond extends StatelessWidget {
+  const Diamond({super.key, this.size = 5, this.color = Gold.deep});
+  final double size;
+  final Color color;
 
   @override
-  void dispose() {
-    _c.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) => Tooltip(
-        message: widget.live ? t('ticker.live_tip') : t('ticker.offline_tip'),
-        child: Row(mainAxisSize: MainAxisSize.min, children: [
-          FadeTransition(
-            opacity: Tween(begin: .35, end: 1.0).animate(_c),
-            child: Container(
-              width: 7,
-              height: 7,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: widget.live ? const Color(0xFF3DDC84) : const Color(0xFFA39A86),
-              ),
-            ),
-          ),
-          const SizedBox(width: 6),
-          Text(widget.live ? t('ticker.live') : t('ticker.offline'),
-              style: const TextStyle(
-                  fontSize: 10, letterSpacing: 1.2, color: Color(0xFFA39A86), fontWeight: FontWeight.w700)),
-        ]),
+  Widget build(BuildContext context) => Transform.rotate(
+        angle: .785398,
+        child: Container(width: size, height: size, color: color),
       );
 }
 

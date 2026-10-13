@@ -237,7 +237,7 @@ const _strings = <String, List<String>>{
   'fav.title': ['Избранное', 'Дӯстдоштаҳо', 'Saved'],
   'fav.sub': ['Вещи, которые покорили ваше сердце', 'Ашёе, ки дили шуморо рабудааст', 'Pieces that stole your heart'],
   'fav.empty': ['Пока пусто', 'Ҳоло холӣ', 'Nothing here yet'],
-  'fav.empty.d': ['Нажмите ♡ на объявлении, чтобы сохранить его', 'Дили ♡-ро дар эълон пахш кунед, то нигоҳ дошта шавад', 'Tap ♡ on a listing to save it'],
+  'fav.empty.d': ['Нажмите на сердечко в объявлении, чтобы сохранить его', 'Дилчаро дар эълон пахш кунед, то нигоҳ дошта шавад', 'Tap the heart on a listing to save it'],
   'profile.new': ['Новое объявление', 'Эълони нав', 'New listing'],
   'profile.logout': ['Выйти', 'Баромад', 'Sign out'],
   'profile.shop': ['магазин', 'мағоза', 'store'],
@@ -271,7 +271,7 @@ const _strings = <String, List<String>>{
   'post.phone': ['Телефон для связи', 'Телефон барои тамос', 'Contact phone'],
   'post.submit': ['Опубликовать', 'Нашр кардан', 'Publish'],
   'post.sending': ['Публикуем…', 'Нашр шуда истодааст…', 'Publishing…'],
-  'post.done': ['Объявление опубликовано ✨', 'Эълон нашр шуд ✨', 'Listing published ✨'],
+  'post.done': ['Объявление опубликовано', 'Эълон нашр шуд', 'Listing published'],
 
   // время
   'time.now': ['только что', 'ҳозир', 'just now'],

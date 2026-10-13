@@ -3,6 +3,11 @@ $ErrorActionPreference = 'Stop'
 $root = $PSScriptRoot
 $out = Join-Path $env:TEMP 'tillo_pages'
 
+# Маълумот ва суратҳои демо: backend/seed_photos -> frontend/web/demo
+Push-Location "$root\backend"
+.\.venv\Scripts\python.exe -m tools.export_demo ..\frontend\assets\demo\data.json
+Pop-Location
+
 Push-Location "$root\frontend"
 flutter build web --release --dart-define=DEMO=true --base-href /tillo.tj/
 Pop-Location

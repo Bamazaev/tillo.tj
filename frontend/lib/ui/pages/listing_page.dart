@@ -140,8 +140,8 @@ class _GalleryState extends State<_Gallery> {
               itemCount: count,
               onPageChanged: (i) => setState(() => _index = i),
               itemBuilder: (_, i) => i == 0
-                  ? Hero(tag: 'img-${l.id}', child: ListingImage(l, index: i))
-                  : ListingImage(l, index: i),
+                  ? Hero(tag: 'img-${l.id}', child: ListingImage(l, index: i, decodeWidth: 1080))
+                  : ListingImage(l, index: i, decodeWidth: 1080),
             ),
             if (l.featured)
               const Positioned(top: 16, left: 16, child: Pill('VIP', icon: Icons.workspace_premium, gold: true)),
@@ -185,7 +185,7 @@ class _GalleryState extends State<_Gallery> {
                   border: Border.all(color: i == _index ? Gold.gold : Gold.line, width: 2),
                 ),
                 clipBehavior: Clip.antiAlias,
-                child: ListingImage(l, index: i),
+                child: ListingImage(l, index: i, decodeWidth: 160),
               ),
             ),
           ),

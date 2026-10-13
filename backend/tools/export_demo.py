@@ -4,6 +4,7 @@ python -m tools.export_demo ../frontend/assets/demo/data.json
 """
 import json
 import os
+import shutil
 import sys
 import tempfile
 
@@ -11,7 +12,8 @@ os.environ["TILLO_DATA_DIR"] = tempfile.mkdtemp(prefix="tillo_demo_")
 
 from app import catalog, gold  # noqa: E402
 from app.db import get_conn, init_db, listing_to_dict  # noqa: E402
-from app.seed import seed_if_empty  # noqa: E402
+from app.seed import SEED_PHOTOS, seed_if_empty  # noqa: E402
+from pathlib import Path  # noqa: E402
 
 
 def main(out: str) -> None:
@@ -38,8 +40,16 @@ def main(out: str) -> None:
         },
         "quote": {**q, "live": False},
         "users": users,
-        "listings": [listing_to_dict(r) for r in rows],
+        # В демо (GitHub Pages) фото лежат рядом с сайтом: web/demo/N.jpg
+        "listings": [
+            {**d, "images": [u.replace("/uploads/seed_", "demo/") for u in d["images"]]}
+            for d in (listing_to_dict(r) for r in rows)
+        ],
     }
+    web_demo = Path(out).resolve().parents[2] / "web" / "demo"
+    web_demo.mkdir(parents=True, exist_ok=True)
+    for photo in SEED_PHOTOS.glob("*.jpg"):
+        shutil.copyfile(photo, web_demo / photo.name)
     with open(out, "w", encoding="utf-8") as fh:
         json.dump(data, fh, ensure_ascii=False, separators=(",", ":"))
     print(f"{len(data['listings'])} listings -> {out}")

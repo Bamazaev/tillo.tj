@@ -22,11 +22,13 @@ class DemoClient extends http.BaseClient {
   late List<Map<String, dynamic>> _users;
   final Map<String, String> _passwords = {};
   final Map<String, int> _sessions = {};
-  bool _ready = false;
   Future<void>? _quoteReady;
 
-  Future<void> _init() async {
-    if (_ready) return;
+  Future<void>? _initFuture;
+
+  Future<void> _init() => _initFuture ??= _load();
+
+  Future<void> _load() async {
     final data = jsonDecode(await rootBundle.loadString('assets/demo/data.json')) as Map<String, dynamic>;
     _meta = data['meta'] as Map<String, dynamic>;
     _quote = data['quote'] as Map<String, dynamic>;
@@ -37,7 +39,6 @@ class DemoClient extends http.BaseClient {
       _passwords[u['phone'] as String] = _demoPassword;
     }
     _restore();
-    _ready = true;
     _quoteReady = _refreshQuote();
   }
 

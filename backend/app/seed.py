@@ -1,9 +1,11 @@
 """Маълумоти намунавӣ барои базаи холӣ. Пароли ҳамаи ҳисобҳои демо: tillo123"""
 import json
 import random
+import shutil
+from pathlib import Path
 
 from .auth import hash_password
-from .db import get_conn
+from .db import BASE_DIR, UPLOAD_DIR, get_conn
 from .gold import FALLBACK, TROY_OUNCE_G
 
 SELLERS = [
@@ -107,7 +109,7 @@ ITEMS = [
      "Музейная вещь с семейной историей."),
     ("Золотая бухарская монета (тилля)", "antique", "gold", 916, 4.5, "none",
      "Историческая монета Бухарского эмирата."),
-    ("Антикварное европейское кольцо", "antique", "gold", 750, 6.3, "sapphire",
+    ("Антикварное европейское кольцо", "antique", "gold", 750, 6.3, "topaz",
      "XX век, стиль ар‑деко."),
 ]
 
@@ -135,6 +137,22 @@ def _price(category: str, metal: str, proba: int | None, weight: float, stone: s
         if category in ("watches", "antique"):
             base *= rnd.uniform(1.4, 2.0)
     return int(round(base / 10) * 10)
+
+
+# Суратҳои озод (Public Domain / CC0) аз Wikimedia Commons; манбаъҳо — CREDITS.md.
+SEED_PHOTOS = BASE_DIR / "seed_photos"
+
+
+def seed_images(n: int) -> list[str]:
+    """Сурати эълони n-умро ба uploads нусха мекунад (агар бошад)."""
+    src = SEED_PHOTOS / f"{n}.jpg"
+    if not src.exists():
+        return []
+    UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+    name = f"seed_{n}.jpg"
+    if not (UPLOAD_DIR / name).exists():
+        shutil.copyfile(src, UPLOAD_DIR / name)
+    return [f"/uploads/{name}"]
 
 
 def seed_if_empty() -> None:
@@ -167,6 +185,6 @@ def seed_if_empty() -> None:
                 (uid, title, desc, cat, metal, proba, weight, stone, condition,
                  _price(cat, metal, proba, weight, stone, rnd),
                  "Хоруғ" if stone == "spinel" else rnd.choice(CITIES_WEIGHTED),
-                 phone, json.dumps([]), int(i % 4 == 0), rnd.randint(12, 900),
+                 phone, json.dumps(seed_images(i + 1)), int(i % 4 == 0), rnd.randint(12, 900),
                  f"-{rnd.randint(0, 60 * 24 * 20)} minutes"),
             )

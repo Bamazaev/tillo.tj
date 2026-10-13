@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
-import 'package:intl/date_symbol_data_local.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'app.dart';
@@ -13,12 +12,11 @@ import 'data/api.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   usePathUrlStrategy();
-  await initializeDateFormatting('ru');
   final prefs = await SharedPreferences.getInstance();
   final api = TilloApi(client: AppConfig.demo ? DemoClient(prefs) : null);
   final settings = SettingsCubit(prefs);
   final auth = AuthCubit(api, prefs);
-  await auth.restore();
+  await auth.restore().timeout(const Duration(seconds: 3), onTimeout: () {});
 
   runApp(
     RepositoryProvider.value(
